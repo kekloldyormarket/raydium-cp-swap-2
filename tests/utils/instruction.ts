@@ -24,6 +24,7 @@ import {
   getPoolVaultAddress,
   createTokenMintAndAssociatedTokenAccount,
   getOrcleAccountAddress,
+  getMetadataAddress,
 } from "./index";
 
 import { ASSOCIATED_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
@@ -303,6 +304,7 @@ export async function initialize(
     poolAddress,
     program.programId
   );
+  const [metadataAddress] = getMetadataAddress(token0);
 
   const creatorToken0 = getAssociatedTokenAddressSync(
     token0,
@@ -324,6 +326,7 @@ export async function initialize(
       authority: auth,
       poolState: poolAddress,
       token0Mint: token0,
+      baseTokenMetadata: metadataAddress,
       token1Mint: token1,
       lpMint: lpMintAddress,
       creatorToken0,

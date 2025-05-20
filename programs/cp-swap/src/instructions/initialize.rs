@@ -15,6 +15,8 @@ use anchor_spl::{
     token_2022::spl_token_2022,
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
+use mpl_token_metadata::{pda::find_metadata_account, state::Metadata};
+use std::str::FromStr;
 use std::ops::Deref;
 
 #[derive(Accounts)]
@@ -55,6 +57,9 @@ pub struct Initialize<'info> {
         mint::token_program = token_0_program,
     )]
     pub token_0_mint: Box<InterfaceAccount<'info, Mint>>,
+
+    /// CHECK: Metadata account for base token (token_0)
+    pub base_token_metadata: UncheckedAccount<'info>,
 
     /// Token_1 mint, the key must grater then token_0 mint.
     #[account(
@@ -172,6 +177,20 @@ pub fn initialize(
     {
         return err!(ErrorCode::NotSupportMint);
     }
+
+    let (metadata_key, _) = find_metadata_account(&ctx.accounts.token_0_mint.key());
+    require_keys_eq!(metadata_key, ctx.accounts.base_token_metadata.key(), ErrorCode::InvalidInput);
+    require_keys_eq!(
+        ctx.accounts.base_token_metadata.owner,
+        &mpl_token_metadata::ID,
+        ErrorCode::InvalidOwner
+    );
+    let metadata = Metadata::deserialize(&mut &ctx.accounts.base_token_metadata.data.borrow()[..])?;
+    require_keys_eq!(
+        metadata.update_authority,
+        crate::BASE_TOKEN_UPDATE_AUTHORITY,
+        ErrorCode::NotApproved
+    );
 
     if ctx.accounts.amm_config.disable_create_pool {
         return err!(ErrorCode::NotApproved);

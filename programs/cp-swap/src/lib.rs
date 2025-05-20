@@ -41,6 +41,9 @@ pub mod create_pool_fee_reveiver {
 }
 
 pub const AUTH_SEED: &str = "vault_and_lp_mint_auth_seed";
+pub const BASE_TOKEN_UPDATE_AUTHORITY: Pubkey = pubkey!(
+    "TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM"
+);
 
 #[program]
 pub mod raydium_cp_swap {
