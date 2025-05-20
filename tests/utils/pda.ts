@@ -25,6 +25,10 @@ export const ORACLE_SEED = Buffer.from(
   anchor.utils.bytes.utf8.encode("observation")
 );
 
+export const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+);
+
 export function u16ToBytes(num: number) {
   const arr = new ArrayBuffer(2);
   const view = new DataView(arr);
@@ -124,4 +128,15 @@ export async function getOrcleAccountAddress(
     programId
   );
   return [address, bump];
+}
+
+export function getMetadataAddress(mint: PublicKey): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("metadata"),
+      TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+      mint.toBuffer(),
+    ],
+    TOKEN_METADATA_PROGRAM_ID
+  );
 }
